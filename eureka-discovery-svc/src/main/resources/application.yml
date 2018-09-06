@@ -1,6 +1,6 @@
 spring:
   application:
-    name: bbby-eureka-service
+    name: eureka-service
 
 server:
   port: 8302
@@ -11,3 +11,13 @@ eureka:
     fetchRegistry: false
     server:
       waitTimeInMsWhenSyncEmpty: 0
+
+zuul:
+  prefix: /api
+  routes:
+    cart-service:
+      path: /cart-service/**
+      url: http://localhost:8300
+    product-service:
+      path: /product-service/**
+      url: http://localhost:8301

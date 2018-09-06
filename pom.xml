@@ -9,10 +9,10 @@
 	<name>promotions-parent</name>
 	<description>promotions-parent</description>
 	<modules>
-		<module>product-svc</module>
-		<module>cart-svc</module>
-		<module>promotion-svc</module>
 		<module>eureka-discovery-svc</module>
+		<module>cart-svc</module>
+		<module>product-svc</module>
+		<module>promotion-svc</module>
 	</modules>
 
 	<parent>

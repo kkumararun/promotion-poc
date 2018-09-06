@@ -22,10 +22,10 @@ public class DbServiceResource {
         this.quotesRepository = quotesRepository;
     }
 
-    @GetMapping("/{username}")
-    public List<String> getQuotes(@PathVariable("username") final String username) {
+    @GetMapping("/{productID}")
+    public List<String> getQuotes(@PathVariable("productID") final String productID) {
 
-        return getQuotesByUserName(username);
+        return getQuotesByUserName(productID);
     }
 
     /*@PostMapping("/add")
