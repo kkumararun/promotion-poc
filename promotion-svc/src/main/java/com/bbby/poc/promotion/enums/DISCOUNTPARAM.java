@@ -1,4 +1,4 @@
-package com.bbby.poc.promotion.dto;
+package com.bbby.poc.promotion.enums;
 
 /**
  * The Enum DISCOUNTPARAM.
@@ -6,15 +6,15 @@ package com.bbby.poc.promotion.dto;
 public enum DISCOUNTPARAM {
 
 	/** The travel date. **/
-	purchaseDate("DISCOUNTPARAMs[T(com.bby.poc.promotion.dto.DISCOUNTPARAM).purchaseDate]"),
+	purchaseDate("discountParams[T(com.bbby.poc.promotion.enums.DISCOUNTPARAM).purchaseDate]"),
 	/** The order total. **/
-	orderTotal("DISCOUNTPARAMs[T(com.bby.poc.promotion.dto.DISCOUNTPARAM).orderTotal]"),
+	orderTotal("discountParams[T(com.bbby.poc.promotion.enums.DISCOUNTPARAM).orderTotal]"),
 	/** The product id. **/
-	productId("DISCOUNTPARAMs[T(com.bby.poc.promotion.dto.DISCOUNTPARAM).productId]"),
+	productId("discountParams[T(com.bbby.poc.promotion.enums.DISCOUNTPARAM).productId]"),
 	/** The product category. **/
-	productCategory("DISCOUNTPARAMs[T(com.bby.poc.promotion.dto.DISCOUNTPARAM).productCategory]"),
+	productCategory("discountParams[T(com.bbby.poc.promotion.enums.DISCOUNTPARAM).productCategory]"),
 	/** The user id. **/
-	userId("DISCOUNTPARAMs[T(com.bby.poc.promotion.dto.DISCOUNTPARAM).userId]");
+	userId("discountParams[T(com.bbby.poc.promotion.enums.DISCOUNTPARAM).userId]");
 	
 	/** The el place holder. */
 	private String elPlaceHolder;
