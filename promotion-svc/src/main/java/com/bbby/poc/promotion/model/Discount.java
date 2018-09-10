@@ -19,8 +19,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
-import com.bbby.poc.promotion.dto.CURRENCY;
-import com.bbby.poc.promotion.dto.DISCOUNTSCOPE;
+import com.bbby.poc.promotion.enums.CURRENCY;
+import com.bbby.poc.promotion.enums.DISCOUNTSCOPE;
 
 @Entity
 @Table(name = "DISCOUNT")
@@ -52,7 +52,7 @@ public class Discount implements IModel {
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "DISCOUNT_ID", unique = true, nullable = false)
+	@Column(name = "DISCOUNT_ID", unique = true)
 	@Override
 	public Long getId() {
 		return discountID;
@@ -146,6 +146,7 @@ public class Discount implements IModel {
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "DISCOUNT_X_DISCOUNT_RULE", joinColumns = { @JoinColumn(name = "DISCOUNT_ID", referencedColumnName = "DISCOUNT_ID") }, inverseJoinColumns = { @JoinColumn(name = "DISCOUNT_RULE_ID", referencedColumnName = "DISCOUNT_RULE_ID") })
+	//@Cascade(CascadeType.SAVE_UPDATE)
 	public Set<DiscountRule> getDiscountRules() {
 		return discountRules;
 	}

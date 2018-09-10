@@ -10,8 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.bbby.poc.promotion.dto.CURRENCY;
-import com.bbby.poc.promotion.dto.RULETYPE;
+import com.bbby.poc.promotion.enums.CURRENCY;
+import com.bbby.poc.promotion.enums.RULETYPE;
 
 /**
  * The Class DiscountRule.
@@ -45,7 +45,7 @@ public class DiscountRule implements IModel{
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "DISCOUNT_RULE_ID", unique = true, nullable = false)
+	@Column(name = "DISCOUNT_RULE_ID", unique = true)
 	@Override
 	public Long getId() {
 		return id;
