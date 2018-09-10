@@ -3,6 +3,7 @@ package com.bbby.poc.promotion.service;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -21,6 +22,7 @@ import com.bbby.poc.promotion.dto.DiscountDTO;
 import com.bbby.poc.promotion.dto.DiscountQueryDTO;
 import com.bbby.poc.promotion.enums.DATEFORMATS;
 import com.bbby.poc.promotion.enums.DISCOUNTPARAM;
+import com.bbby.poc.promotion.enums.DISCOUNTSCOPE;
 import com.bbby.poc.promotion.model.Discount;
 import com.bbby.poc.promotion.model.DiscountRule;
 import com.bbby.poc.promotion.repository.DiscountRepository;
@@ -63,10 +65,15 @@ public class DiscountCouponService {
 			discountParamMap.put(DISCOUNTPARAM.purchaseDate, new Date());
 			discountQueryDTO.setDiscountParams(discountParamMap);
 			Boolean isApplicable = checkRulesApplicability(discountQueryDTO,
-					discount.getDiscountRules());
+					discount.getDiscountRules(), discount.getDiscountScope());
 			discountDTO = DiscountDTO.convert(discount);
 			discountDTO.setApplicable(isApplicable);
-			if(isApplicable==true) {
+			if(isApplicable==true && discount.getDiscountScope()==DISCOUNTSCOPE.CART) {
+				Double orderTotal = (Double) Double.parseDouble("" + discountParamMap.get(DISCOUNTPARAM.orderTotal));
+				Double discountAmount = orderTotal * (1 - (discount.getDiscountPercent()/100));
+				//DISCOUNTPARAM.orderTotal
+				discountDTO.setDiscountAmount(discountAmount);
+			} else if(isApplicable==true && discount.getDiscountScope()==DISCOUNTSCOPE.PRODUCT) {
 				Double orderTotal = (Double) Double.parseDouble("" + discountParamMap.get(DISCOUNTPARAM.orderTotal));
 				Double discountAmount = orderTotal * (1 - (discount.getDiscountPercent()/100));
 				//DISCOUNTPARAM.orderTotal
@@ -85,7 +92,7 @@ public class DiscountCouponService {
 	 *            the discount rules
 	 * @return the boolean
 	 */
-	private Boolean checkRulesApplicability(DiscountQueryDTO discountQueryDTO, Set<DiscountRule> discountRules) {
+	private Boolean checkRulesApplicability(DiscountQueryDTO discountQueryDTO, Set<DiscountRule> discountRules, DISCOUNTSCOPE discountScope) {
 		Boolean isApplicable = true;
 		// enrichDiscountQuery(discountQueryDTO);
 		EvaluationContext context = new StandardEvaluationContext(discountQueryDTO);
@@ -95,8 +102,14 @@ public class DiscountCouponService {
 				isApplicable = false;
 			for (DiscountRule discountRule : discountRules) {
 				logger.debug("Running Rule " + discountRule.getName());
-				Expression expression = parser.parseExpression(discountRule.getRuleEl());
-				isApplicable = isApplicable && expression.getValue(context, Boolean.class);
+				if(discountScope == DISCOUNTSCOPE.CART) {
+					Expression expression = parser.parseExpression(discountRule.getRuleEl());
+					isApplicable = isApplicable && expression.getValue(context, Boolean.class);
+				} else if(discountScope == DISCOUNTSCOPE.PRODUCT) {
+					List<String> list = (List<String>) parser.parseExpression(discountRule.getRuleEl()).getValue(context);
+					String productId = (String) discountQueryDTO.getDiscountParams().get(DISCOUNTPARAM.productId);
+					isApplicable = list.contains(productId);
+				}
 			}
 		} catch (ParseException exception) {
 			isApplicable = false;
