@@ -21,3 +21,6 @@ zuul:
     product-service:
       path: /product-service/**
       url: http://localhost:8301
+    promotion-service:
+      path: /promotion-service/**
+      url: http://localhost:8303

@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -22,6 +25,7 @@ import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.bbby.poc.dbservice.dto.DISCOUNTTYPE;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -34,10 +38,11 @@ public class Cart {
 	private Date createDate;
 	private String userId;
 	private BigDecimal orderTotal;
-	private String discountType;
+	private DISCOUNTTYPE discountType;
 	private BigDecimal discountValue;
 	private BigDecimal dicountedTotalPrice;
 	private List<ShoppingCartItem> shoppingCartItemList;
+	private String message;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -78,12 +83,13 @@ public class Cart {
 		this.orderTotal = orderTotal;
 	}
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "DISCOUNT_TYPE")
-	public String getDiscountType() {
+	public DISCOUNTTYPE getDiscountType() {
 		return discountType;
 	}
 
-	public void setDiscountType(String discountType) {
+	public void setDiscountType(DISCOUNTTYPE discountType) {
 		this.discountType = discountType;
 	}
 
@@ -117,4 +123,12 @@ public class Cart {
 		this.shoppingCartItemList = shoppingCartItemList;
 	}
 
+	@Transient
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 }

@@ -68,7 +68,7 @@ public class DiscountCouponService {
 					discount.getDiscountRules(), discount.getDiscountScope());
 			discountDTO = DiscountDTO.convert(discount);
 			discountDTO.setApplicable(isApplicable);
-			if(isApplicable==true && discount.getDiscountScope()==DISCOUNTSCOPE.CART) {
+			/*if(isApplicable==true && discount.getDiscountScope()==DISCOUNTSCOPE.CART) {
 				Double orderTotal = (Double) Double.parseDouble("" + discountParamMap.get(DISCOUNTPARAM.orderTotal));
 				Double discountAmount = orderTotal * (1 - (discount.getDiscountPercent()/100));
 				//DISCOUNTPARAM.orderTotal
@@ -78,7 +78,7 @@ public class DiscountCouponService {
 				Double discountAmount = orderTotal * (1 - (discount.getDiscountPercent()/100));
 				//DISCOUNTPARAM.orderTotal
 				discountDTO.setDiscountAmount(discountAmount);
-			}
+			}*/
 		}
 		return discountDTO;
 	}

@@ -17,6 +17,7 @@ import org.hibernate.annotations.ForeignKey;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@SuppressWarnings("deprecation")
 @Entity
 @Table(name = "SHOPPING_CART_ITEM")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
