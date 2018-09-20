@@ -1,4 +1,4 @@
-package com.bbby.poc.dbservice.resource;
+package com.bbby.poc.cart.controller;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -8,8 +8,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.cassandra.repository.support.BasicMapId;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,15 +26,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.bbby.poc.dbservice.dto.ApplyPromotionDTO;
-import com.bbby.poc.dbservice.dto.CURRENCY;
-import com.bbby.poc.dbservice.dto.DISCOUNTPARAM;
-import com.bbby.poc.dbservice.dto.DISCOUNTTYPE;
-import com.bbby.poc.dbservice.dto.DiscountDTO;
-import com.bbby.poc.dbservice.dto.DiscountQueryDTO;
-import com.bbby.poc.dbservice.model.Cart;
-import com.bbby.poc.dbservice.model.ShoppingCartItem;
-import com.bbby.poc.dbservice.repository.CartRepository;
+import com.bbby.poc.cart.dto.ApplyPromotionDTO;
+import com.bbby.poc.cart.dto.CURRENCY;
+import com.bbby.poc.cart.dto.CartDTO;
+import com.bbby.poc.cart.dto.DISCOUNTPARAM;
+import com.bbby.poc.cart.dto.DISCOUNTTYPE;
+import com.bbby.poc.cart.dto.DiscountDTO;
+import com.bbby.poc.cart.dto.DiscountQueryDTO;
+import com.bbby.poc.cart.model.Cart;
+import com.bbby.poc.cart.model.CartItem;
+import com.bbby.poc.cart.repository.CartItemRepository;
+import com.bbby.poc.cart.repository.CartRepository;
+import com.datastax.driver.core.utils.UUIDs;
 
 @CrossOrigin
 @RestController
@@ -41,70 +48,85 @@ public class CartResource {
 
 	private static final String DISCOUNT_MS_URL = "http://localhost:8302/api/promotion-service/discount_coupon/apply";
 	
+	@Autowired
 	private CartRepository cartRepository;
-
-	public CartResource(CartRepository cartRepository) {
-		this.cartRepository = cartRepository;
-	}
+	@Autowired
+	private CartItemRepository cartItemRepository;
+	
 
 	/**
 	 * Add to Cart API
 	 * 
-	 * @param cart
+	 * @param cartDTO
 	 * @return
 	 */
 	@PostMapping(path = "/add")
-	public Cart addItems(@RequestBody Cart cart) {
-		if (cart.getId() != null) {
-			Cart existingCart = cartRepository.findOne(cart.getId());
+	public CartDTO addItems(@RequestBody CartDTO cartDTO) {
+		if (cartDTO.getId() != null) {
+			Cart existingCart = cartRepository.findOne(BasicMapId.id("id", cartDTO.getId()));
 			if (existingCart != null) {
 				LOGGER.info("adding product to existing cart");
-				List<ShoppingCartItem> existingCartItems = existingCart.getShoppingCartItemList();
+				List<CartItem> existingCartItems = cartItemRepository.findByCartID(existingCart.getId().toString());
 
 				BigDecimal orderTotal = existingCart.getOrderTotal();
-				for (ShoppingCartItem item : cart.getShoppingCartItemList()) {
-					item.setCart(existingCart);
+				for (CartItem item : cartDTO.getShoppingCartItemList()) {
+					item.setId(UUIDs.timeBased());
+					item.setCartID(existingCart.getId().toString());
+					
+					cartItemRepository.save(item);
+					
 					orderTotal = orderTotal.add(item.getSalePrice());
 					existingCartItems.add(item);
 				}
 				existingCart.setOrderTotal(orderTotal);
-				existingCart.setShoppingCartItemList(existingCartItems);
+				cartDTO.setOrderTotal(orderTotal);
+				cartDTO.setShoppingCartItemList(existingCartItems);
 				cartRepository.save(existingCart);
-				existingCart.setTotalItems(existingCart.getShoppingCartItemList().size());
-				return existingCart;
+				//existingCart.setTotalItems(cartDTO.getShoppingCartItemList().size());
+				return cartDTO;
 			} else {
-				LOGGER.info("creating new cart in case of invalid cart-id");
-				List<ShoppingCartItem> newItems = new ArrayList<ShoppingCartItem>(0);
-				List<ShoppingCartItem> items = cart.getShoppingCartItemList();
+				LOGGER.info("creating new cart");
+				cartDTO.setId(UUIDs.timeBased());
+				List<CartItem> newItems = new ArrayList<CartItem>(0);
+				List<CartItem> items = cartDTO.getShoppingCartItemList();
 				BigDecimal orderTotal = BigDecimal.ZERO;
-				for (ShoppingCartItem item : items) {
-					item.setCart(cart);
+				for (CartItem item : items) {
+					item.setCartID(cartDTO.getId().toString());
+					item.setId(UUIDs.timeBased());
 					newItems.add(item);
 					orderTotal = item.getSalePrice();
 				}
-				cart.setOrderTotal(orderTotal);
-				cart.setCreateDate(new Date());
-				cart.setShoppingCartItemList(newItems);
+				cartDTO.setOrderTotal(orderTotal);
+				cartDTO.setCreateDate(new Date().toString());
+				Cart cart = new Cart();
+				BeanUtils.copyProperties(cartDTO, cart);
 				cartRepository.save(cart);
+				cartItemRepository.save(newItems);
 			}
 		} else {
 			LOGGER.info("creating new cart");
-			List<ShoppingCartItem> newItems = new ArrayList<ShoppingCartItem>(0);
-			List<ShoppingCartItem> items = cart.getShoppingCartItemList();
+			cartDTO.setId(UUIDs.timeBased());
+			List<CartItem> newItems = new ArrayList<CartItem>(0);
+			List<CartItem> items = cartDTO.getShoppingCartItemList();
 			BigDecimal orderTotal = BigDecimal.ZERO;
-			for (ShoppingCartItem item : items) {
-				item.setCart(cart);
+			for (CartItem item : items) {
+				item.setCartID(cartDTO.getId().toString());
+				item.setId(UUIDs.timeBased());
 				newItems.add(item);
 				orderTotal = item.getSalePrice();
 			}
-			cart.setOrderTotal(orderTotal);
-			cart.setCreateDate(new Date());
-			cart.setShoppingCartItemList(newItems);
+			cartDTO.setOrderTotal(orderTotal);
+			cartDTO.setCreateDate(new Date().toString());
+			
+			Cart cart = new Cart();
+			BeanUtils.copyProperties(cartDTO, cart);
 			cartRepository.save(cart);
+			
+			cartItemRepository.save(newItems);
 		}
-		cart.setTotalItems(cart.getShoppingCartItemList().size());
-		cart.setMessage("Successfully added product to shopping cart");
-		return cart;
+		//cartDTO.setTotalItems(cart.getShoppingCartItemList().size());
+		cartDTO.setMessage("Successfully added product to shopping cart");
+		return cartDTO;
 	}
 
 	/**
@@ -114,12 +136,12 @@ public class CartResource {
 	 * @return
 	 */
 	@GetMapping(path = "/get")
-	public Cart getCartByID(@RequestParam("id") Integer cartID) {
-		final Cart cart = cartRepository.findOne(cartID);
-		if(cart != null) {
+	public Cart getCartByID(@RequestParam("id") UUID cartID) {
+		final Cart cart = cartRepository.findOne(BasicMapId.id("id" , cartID));
+		/*if(cart != null) {
 			cart.setTotalItems(cart.getShoppingCartItemList().size());
 			cart.setMessage("products in existing shopping cart");
-		}
+		}*/
 		return cart;
 	}
 	
@@ -130,10 +152,10 @@ public class CartResource {
 	 * @return
 	 */
 	@GetMapping(path = "/delete")
-	public Cart deleteCartItemByID(@RequestParam("id") Integer cartID, @RequestParam("itemID") Integer itemID) {
-		final Cart cart = cartRepository.findOne(cartID);
+	public Cart deleteCartItemByID(@RequestParam("id") UUID cartID, @RequestParam("itemID") Integer itemID) {
+		final Cart cart = cartRepository.findOne(BasicMapId.id("id" , cartID));
 		
-		cart.setMessage("products in existing shopping cart");
+		//cart.setMessage("products in existing shopping cart");
 		return cart;
 	}
 
@@ -144,38 +166,40 @@ public class CartResource {
 	 * @return
 	 */
 	@PostMapping(path = "/apply-promotion")
-	public Cart applyPromotion(@RequestBody ApplyPromotionDTO promotion) {
-		Cart existingCart = cartRepository.findOne(promotion.getCartID());
+	public CartDTO applyPromotion(@RequestBody ApplyPromotionDTO promotion) {
+		CartDTO dto = new CartDTO();
+		Cart existingCart = cartRepository.findOne(BasicMapId.id("id",promotion.getCartID()));
 		if (existingCart != null) {
+			BeanUtils.copyProperties(existingCart, dto);
 			DiscountDTO discount = getApplicableDiscount(promotion.getPromoCode(), existingCart.getOrderTotal());
 			if(discount != null && discount.getApplicable()) {
 				LOGGER.info("applying promotion to cart");
-				applyDiscountOnCart(existingCart, discount);
+				applyDiscountOnCart(dto, discount);
+				dto.setMessage("Promotion Applied");
 			}else {
 				LOGGER.info("invalid promotion applied");
-				existingCart.setMessage("Oops ! Invalid coupon code entered.");
+				dto.setMessage("Oops ! Invalid coupon code entered.");
 			}
 		}
-		existingCart.setTotalItems(existingCart.getShoppingCartItemList().size());
-		return existingCart;
+		return dto;
 	}
 	
 	/**
 	 * Apply Discount on Cart/Product
 	 * 
-	 * @param existingCart
+	 * @param cartDTO
 	 * @param discount
 	 */
-	private void applyDiscountOnCart(Cart existingCart, DiscountDTO discount) {
+	private void applyDiscountOnCart(CartDTO cartDTO, DiscountDTO discount) {
 		switch(discount.getDiscountScope()) {
 			case CART : {
 				LOGGER.info("promotion applied at "+discount.getDiscountScope());
 				if(discount.getDiscountPercent() != null ) {
-					List<ShoppingCartItem> existingCartItems = existingCart.getShoppingCartItemList();
-					List<ShoppingCartItem> newItems = new ArrayList<ShoppingCartItem>(0);
+					List<CartItem> existingCartItems = cartDTO.getShoppingCartItemList();
+					List<CartItem> newItems = new ArrayList<CartItem>(0);
 					BigDecimal dicountedTotalPrice = BigDecimal.ZERO;
 					BigDecimal discountTotalAmount = BigDecimal.ZERO;
-					for (ShoppingCartItem item : existingCartItems) {
+					for (CartItem item : existingCartItems) {
 						BigDecimal discountAmount = item.getSalePrice().multiply(discount.getDiscountPercent().divide(new BigDecimal("100")));
 						BigDecimal discountedPrice = item.getSalePrice().subtract(discountAmount);
 						item.setDiscountedPrice(discountedPrice);
@@ -184,23 +208,26 @@ public class CartResource {
 						newItems.add(item);
 					}
 					
-					existingCart.setDiscountTotalAmount(discountTotalAmount);
-					existingCart.setDicountedTotalPrice(dicountedTotalPrice);
-					existingCart.setShoppingCartItemList(newItems);
+					cartDTO.setDiscountTotalAmount(discountTotalAmount);
+					cartDTO.setDicountedTotalPrice(dicountedTotalPrice);
+					cartDTO.setShoppingCartItemList(newItems);
 					
 					LOGGER.info("promotion applied @ "+discount.getDiscountPercent()+" %");
-					existingCart.setDiscountType(DISCOUNTTYPE.PERCENTAGE);			
-					existingCart.setDiscountValue(discount.getDiscountPercent());
+					cartDTO.setMessage("promotion applied @ "+discount.getDiscountPercent()+" %");
+					
+					cartDTO.setDiscountType(DISCOUNTTYPE.PERCENTAGE.name());			
+					cartDTO.setDiscountValue(discount.getDiscountPercent());
 					
 				} else if(discount.getDiscountAmount() != null){
-					BigDecimal dicountedTotalPrice = existingCart.getOrderTotal().subtract(discount.getDiscountAmount());
-					existingCart.setDicountedTotalPrice(dicountedTotalPrice);
+					BigDecimal dicountedTotalPrice = cartDTO.getOrderTotal().subtract(discount.getDiscountAmount());
+					cartDTO.setDicountedTotalPrice(dicountedTotalPrice);
 					
 					LOGGER.info("promotion applied for "+discount.getCurrency()+" "+discount.getDiscountAmount());
-					existingCart.setDiscountTotalAmount(discount.getDiscountAmount());
+					cartDTO.setMessage("promotion applied for "+discount.getCurrency()+" "+discount.getDiscountAmount());
 					
-					existingCart.setDiscountType(DISCOUNTTYPE.AMOUNT);
-					existingCart.setDiscountValue(discount.getDiscountAmount());
+					cartDTO.setDiscountTotalAmount(discount.getDiscountAmount());
+					cartDTO.setDiscountType(DISCOUNTTYPE.AMOUNT.name());
+					cartDTO.setDiscountValue(discount.getDiscountAmount());
 				} else {
 					// Not Applicable
 				}
@@ -251,6 +278,6 @@ public class CartResource {
 	 */
 	private String convertToStringDate() {
 		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		return sdf.format(new Date());
+		return sdf.format(new java.util.Date());
 	}
 }

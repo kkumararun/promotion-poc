@@ -40,8 +40,10 @@ public class Cart {
 	private BigDecimal orderTotal;
 	private DISCOUNTTYPE discountType;
 	private BigDecimal discountValue;
+	private BigDecimal discountTotalAmount;
 	private BigDecimal dicountedTotalPrice;
 	private List<ShoppingCartItem> shoppingCartItemList;
+	private Integer totalItems;
 	private String message;
 
 	@Id
@@ -102,6 +104,15 @@ public class Cart {
 		this.discountValue = discountValue;
 	}
 
+	@Column(name = "DISCOUNTED_TOTAL_AMOUNT")
+	public BigDecimal getDiscountTotalAmount() {
+		return discountTotalAmount;
+	}
+
+	public void setDiscountTotalAmount(BigDecimal discountTotalAmount) {
+		this.discountTotalAmount = discountTotalAmount;
+	}
+
 	@Column(name = "DISCOUNTED_TOTAL_PRICE")
 	public BigDecimal getDicountedTotalPrice() {
 		return dicountedTotalPrice;
@@ -121,6 +132,15 @@ public class Cart {
 
 	public void setShoppingCartItemList(List<ShoppingCartItem> shoppingCartItemList) {
 		this.shoppingCartItemList = shoppingCartItemList;
+	}
+	
+	@Transient
+	public Integer getTotalItems() {
+		return totalItems != null ? totalItems : shoppingCartItemList.size();
+	}
+
+	public void setTotalItems(Integer totalItems) {
+		this.totalItems = totalItems;
 	}
 
 	@Transient

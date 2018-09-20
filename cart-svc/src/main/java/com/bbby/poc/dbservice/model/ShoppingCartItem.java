@@ -32,6 +32,7 @@ public class ShoppingCartItem {
 	private String discountType;
 	private BigDecimal discountValue;
 	private BigDecimal discountedPrice;
+	private String image;
 	@JsonIgnore
 	private Cart cart;
 		
@@ -136,5 +137,14 @@ public class ShoppingCartItem {
 
 	public void setCart(Cart cart) {
 		this.cart = cart;
+	}
+
+	@Column(name = "IMAGE", length = 500)
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 }
