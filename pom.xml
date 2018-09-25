@@ -9,11 +9,13 @@
 	<name>promotions-parent</name>
 	<description>promotions-parent</description>
 	<modules>
-		<module>eureka-discovery-svc</module>
+		<module>registry-svc</module>
 		<module>cart-svc</module>
 		<module>product-svc</module>
 		<module>promotion-svc</module>
 		<module>cart-cassandra-svc</module>
+		<module>api-gateway-main</module>
+		<module>config-server</module>
 	</modules>
 
 	<parent>
