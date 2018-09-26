@@ -14,6 +14,7 @@
 		<module>product-svc</module>
 		<module>promotion-svc</module>
 		<module>cart-cassandra-svc</module>
+		<module>price-svc</module>
 	</modules>
 
 	<parent>
