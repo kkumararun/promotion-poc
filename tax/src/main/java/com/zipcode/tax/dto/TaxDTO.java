@@ -42,20 +42,20 @@ public class TaxDTO {
 		this.taxTobePaid = taxTobePaid;
 	}
 	
-	public TaxDTO convert(Optional<USTax> tax,BigDecimal taxToBePaid) {	
+	public TaxDTO convert(USTax tax,BigDecimal taxToBePaid) {	
 		TaxDTO taxDTO=new TaxDTO();
-		taxDTO.setZipcode(tax.get().getZipcode());
-		taxDTO.setState(tax.get().getState());
-		taxDTO.setTaxPercent(tax.get().getTaxPercent());
+		taxDTO.setZipcode(tax.getZipcode());
+		taxDTO.setState(tax.getState());
+		taxDTO.setTaxPercent(tax.getTaxPercent());
 		taxDTO.setTaxTobePaid(taxToBePaid);				
 		return taxDTO;		
 	}
 	
-	public TaxDTO convertToCADTO(Optional<CATax> tax, BigDecimal taxToBePaid) {
+	public TaxDTO convertToCADTO(CATax tax, BigDecimal taxToBePaid) {
 		TaxDTO taxDTO=new TaxDTO();
-		taxDTO.setZipcode(tax.get().getZipcode());
-		taxDTO.setState(tax.get().getState());
-		taxDTO.setTaxPercent(tax.get().getTaxPercent());
+		taxDTO.setZipcode(tax.getZipcode());
+		taxDTO.setState(tax.getState());
+		taxDTO.setTaxPercent(tax.getTaxPercent());
 		taxDTO.setTaxTobePaid(taxToBePaid);				
 		return taxDTO;		
 	}

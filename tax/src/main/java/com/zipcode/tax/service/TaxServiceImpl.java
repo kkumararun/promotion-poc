@@ -49,8 +49,8 @@ public class TaxServiceImpl implements TaxService {
 	 * @return TaxDTO object
 	 */
 	private TaxDTO getTaxForUS(Integer zipcode, Integer amount) {
-		Optional<USTax> tax = usStateTaxRepository.findById(zipcode);
-		BigDecimal taxToBePaid = new BigDecimal((tax.get().getTaxPercent() * amount) / 100);
+		USTax tax = usStateTaxRepository.findOne(zipcode);
+		BigDecimal taxToBePaid = new BigDecimal((tax.getTaxPercent() * amount) / 100);
 		return taxDTO.convert(tax, taxToBePaid);
 	}
 
@@ -60,8 +60,8 @@ public class TaxServiceImpl implements TaxService {
 	 * @return TaxDTO object
 	 */
 	private TaxDTO getTaxForCA(Integer zipcode, Integer amount) {
-		Optional<CATax> tax = caStateTaxRepository.findById(zipcode);
-		BigDecimal taxToBePaid = new BigDecimal((tax.get().getTaxPercent() * amount) / 100);
+		CATax tax = caStateTaxRepository.findOne(zipcode);
+		BigDecimal taxToBePaid = new BigDecimal((tax.getTaxPercent() * amount) / 100);
 		return taxDTO.convertToCADTO(tax, taxToBePaid);
 	}
 }

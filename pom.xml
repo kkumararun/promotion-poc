@@ -17,6 +17,7 @@
     <module>price-svc</module>
 		<module>api-gateway-main</module>
 		<module>config-server</module>
+		<module>tax</module>
 	</modules>
 
 	<parent>
