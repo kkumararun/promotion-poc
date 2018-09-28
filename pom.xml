@@ -14,7 +14,7 @@
 		<module>product-svc</module>
 		<module>promotion-svc</module>
 		<module>cart-cassandra-svc</module>
-    <module>price-svc</module>
+    	<module>price-svc</module>
 		<module>api-gateway-main</module>
 		<module>config-server</module>
 		<module>tax</module>
