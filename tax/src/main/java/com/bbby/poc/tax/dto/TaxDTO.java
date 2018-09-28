@@ -1,26 +1,26 @@
-package com.zipcode.tax.dto;
+package com.bbby.poc.tax.dto;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import com.zipcode.tax.entity.CATax;
-import com.zipcode.tax.entity.USTax;
+import com.bbby.poc.tax.entity.CATax;
+import com.bbby.poc.tax.entity.USTax;
 
 @Component
 public class TaxDTO {
 	
-	private Integer zipcode;
+	private String zipcode;
 	private String state;
 	private Integer taxPercent;
 	private BigDecimal taxTobePaid;
 	
 	
-	public Integer getZipcode() {
+	public String getZipcode() {
 		return zipcode;
 	}
-	public void setZipcode(Integer zipcode) {
+	public void setZipcode(String zipcode) {
 		this.zipcode = zipcode;
 	}
 	public String getState() {
@@ -44,7 +44,7 @@ public class TaxDTO {
 	
 	public TaxDTO convert(USTax tax,BigDecimal taxToBePaid) {	
 		TaxDTO taxDTO=new TaxDTO();
-		taxDTO.setZipcode(tax.getZipcode());
+		taxDTO.setZipcode(tax.getZipcode().toString());
 		taxDTO.setState(tax.getState());
 		taxDTO.setTaxPercent(tax.getTaxPercent());
 		taxDTO.setTaxTobePaid(taxToBePaid);				

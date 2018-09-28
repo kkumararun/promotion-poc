@@ -1,4 +1,4 @@
-package com.zipcode.tax;
+package com.bbby.poc.tax;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

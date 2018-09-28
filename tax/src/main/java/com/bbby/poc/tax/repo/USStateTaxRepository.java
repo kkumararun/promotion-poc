@@ -1,9 +1,9 @@
-package com.zipcode.tax.repo;
+package com.bbby.poc.tax.repo;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.zipcode.tax.entity.USTax;
+import com.bbby.poc.tax.entity.USTax;
 
 @Repository
 public interface USStateTaxRepository extends CrudRepository<USTax, Integer>{

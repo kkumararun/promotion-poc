@@ -1,4 +1,4 @@
-package com.zipcode.tax.entity;
+package com.bbby.poc.tax.entity;
 
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.PrimaryKey;
@@ -7,15 +7,15 @@ import org.springframework.data.cassandra.mapping.Table;
 @Table(value="CA_ZIPCODE")
 public class CATax implements Tax{
 
-	private Integer zipcode;
+	private String zipcode;
 	private String state;
 	private Integer taxPercent;
 	
 	@PrimaryKey
-	public Integer getZipcode() {
+	public String getZipcode() {
 		return zipcode;
 	}
-	public void setZipcode(Integer zipcode) {
+	public void setZipcode(String zipcode) {
 		this.zipcode = zipcode;
 	}
 	

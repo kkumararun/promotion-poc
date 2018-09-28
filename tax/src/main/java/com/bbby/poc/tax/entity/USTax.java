@@ -1,4 +1,4 @@
-package com.zipcode.tax.entity;
+package com.bbby.poc.tax.entity;
 
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.PrimaryKey;

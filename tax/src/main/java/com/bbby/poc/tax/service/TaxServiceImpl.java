@@ -1,4 +1,4 @@
-package com.zipcode.tax.service;
+package com.bbby.poc.tax.service;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -6,11 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zipcode.tax.dto.TaxDTO;
-import com.zipcode.tax.entity.CATax;
-import com.zipcode.tax.entity.USTax;
-import com.zipcode.tax.repo.CAStateTaxRepository;
-import com.zipcode.tax.repo.USStateTaxRepository;
+import com.bbby.poc.tax.dto.TaxDTO;
+import com.bbby.poc.tax.entity.CATax;
+import com.bbby.poc.tax.entity.USTax;
+import com.bbby.poc.tax.repo.CAStateTaxRepository;
+import com.bbby.poc.tax.repo.USStateTaxRepository;
 
 /**
  * @author Arun Kumar (BA03203)
@@ -33,12 +33,12 @@ public class TaxServiceImpl implements TaxService {
 	 * #getTaxAmount(java.lang.String, java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public TaxDTO getTaxAmount(String siteID, Integer zipcode, Integer amount) {
+	public TaxDTO getTaxAmount(String siteID, String zipcode, Integer amount) {
 
 		if (siteID.equalsIgnoreCase("US"))
-			return getTaxForUS(zipcode, amount);
+			return getTaxForUS(Integer.parseInt(zipcode), amount);
 		else if (siteID.equalsIgnoreCase("CA"))
-			return getTaxForCA(zipcode, amount);
+			return getTaxForCA(""+zipcode, amount);
 
 		return null;
 	}
@@ -59,7 +59,7 @@ public class TaxServiceImpl implements TaxService {
 	 * @param amount
 	 * @return TaxDTO object
 	 */
-	private TaxDTO getTaxForCA(Integer zipcode, Integer amount) {
+	private TaxDTO getTaxForCA(String zipcode, Integer amount) {
 		CATax tax = caStateTaxRepository.findOne(zipcode);
 		BigDecimal taxToBePaid = new BigDecimal((tax.getTaxPercent() * amount) / 100);
 		return taxDTO.convertToCADTO(tax, taxToBePaid);
